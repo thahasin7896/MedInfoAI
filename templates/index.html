@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MedLens | Medical Information Intelligence</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon">✚</div>
+            <div>
+                <h2>MedLens</h2>
+                <span>Medical Intelligence</span>
+            </div>
+        </div>
+
+        <nav class="navigation">
+
+            <button class="nav-item active">
+                <span>⌂</span>
+                Dashboard
+            </button>
+
+            <button class="nav-item" onclick="window.location.href='/patients'">
+    <span>👤</span>
+    Patients
+</button>
+
+            <button class="nav-item" onclick="window.location.href='/reports'">
+    <span>📄</span>
+    Medical Reports
+</button>
+
+            <button class="nav-item" onclick="window.location.href='/analytics'">
+    <span>📊</span>
+    Analytics
+</button>
+
+<button class="nav-item" onclick="window.location.href='/timeline'">
+    <span>🕒</span>
+    Timeline
+</button>
+
+<button class="nav-item" onclick="window.location.href='/conflicts'">
+    <span>⚠</span>
+    Conflicts
+</button>
+
+            <button class="nav-item">
+                <span>🔍</span>
+                Search Records
+            </button>
+            
+
+        </nav>
+
+        <div class="sidebar-bottom">
+
+            <button class="nav-item">
+                <span>⚙</span>
+                Settings
+            </button>
+
+            <div class="privacy-note">
+                <span>🔒</span>
+                <div>
+                    <strong>Privacy First</strong>
+                    <small>Your medical information stays protected.</small>
+                </div>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="topbar">
+
+            <div>
+                <h1>Dashboard</h1>
+                <p>Manage and understand your medical information.</p>
+            </div>
+
+            <div class="topbar-actions">
+
+                <button class="icon-button" title="Notifications">
+                    🔔
+                </button>
+
+                <button class="profile-button">
+                    <span class="profile-icon">👤</span>
+                    <span>User</span>
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- Welcome Section -->
+        <section class="welcome-card">
+
+            <div>
+                <span class="welcome-label">MEDICAL INFORMATION INTELLIGENCE</span>
+
+                <h2>
+                    Organize your medical information
+                    <br>
+                    <span>clearly and securely.</span>
+                </h2>
+
+                <p>
+                    Add patient information, upload medical reports,
+                    review structured results and understand your
+                    medical history with AI assistance.
+                </p>
+
+                <button class="primary-button">
+                    + Add Patient
+                </button>
+            </div>
+
+            <div class="welcome-illustration">
+                🩺
+            </div>
+
+        </section>
+
+
+        <!-- Feature Cards -->
+        <section class="section">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Quick Actions</h2>
+                    <p>Start managing your medical information.</p>
+                </div>
+            </div>
+
+
+            <div class="feature-grid">
+
+                <!-- Add Patient -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        👤
+                    </div>
+
+                    <h3>Add Patient Information</h3>
+
+                    <p>
+                        Enter age, sex, symptoms, conditions,
+                        allergies, medications and other relevant
+                        health information.
+                    </p>
+
+                    <button
+    class="card-button"
+    onclick="window.location.href='/patient'">
+    Add Patient →
+</button>
+
+                </div>
+
+
+                <!-- Upload Report -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📄
+                    </div>
+
+                    <h3>Upload Medical Report</h3>
+
+                    <p>
+                        Upload a medical report and extract
+                        relevant information into a structured record.
+                    </p>
+
+                    <button
+    class="card-button"
+    onclick="window.location.href='/reports'">
+    Upload Report →
+</button>
+
+                </div>
+
+
+                <!-- Structured Record -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📋
+                    </div>
+
+                    <h3>Structured Medical Record</h3>
+
+                    <p>
+                        View patient information and extracted
+                        medical results in an organized format.
+                    </p>
+
+                    <button
+    class="card-button"
+    onclick="window.location.href='/results'">
+    View Records →
+</button>
+
+                </div>
+
+
+                <!-- Analytics -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        📊
+                    </div>
+
+                    <h3>Analytics & Trends</h3>
+
+                    <p>
+                        Understand changes in available medical
+                        measurements through clear visualizations.
+                    </p>
+
+                    
+                    <button
+    class="card-button"
+    onclick="window.location.href='/analytics'">
+    Open Analytics →
+</button>
+                </div>
+
+
+                <!-- AI Summary -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        ✨
+                    </div>
+
+                    <h3>AI Information Summary</h3>
+
+                    <p>
+                        Generate a concise, patient-friendly
+                        summary from available medical information.
+                    </p>
+
+                    
+                   <button
+    class="card-button"
+    onclick="window.location.href='/summary'">
+    Open AI Summary →
+</button>
+                </div>
+
+
+                <!-- Verification -->
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        ✓
+                    </div>
+
+                    <h3>Review & Verification</h3>
+
+                    <p>
+                        Review extracted information and edit
+                        incorrect entries before confirming them.
+                    </p>
+
+                    
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Empty State -->
+        <section class="records-section">
+
+            <div class="records-header">
+
+                <div>
+                    <h2>Recent Medical Records</h2>
+                    <p>Your recently added information will appear here.</p>
+                </div>
+
+                <button class="secondary-button">
+                    View All
+                </button>
+
+            </div>
+
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    📁
+                </div>
+
+                <h3>No medical records yet</h3>
+
+                <p>
+                    Add patient information or upload a medical report
+                    to begin building a structured medical record.
+                </p>
+
+                <button class="primary-button">
+                    + Add Patient
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- Safety Notice -->
+        <section class="safety-notice">
+
+            <div class="safety-icon">
+                ⚕
+            </div>
+
+            <div>
+                <h3>Responsible AI & Safety</h3>
+
+                <p>
+                    MedLens is designed to organize and explain
+                    medical information. It does not provide
+                    medical diagnosis, prescribe medication or
+                    replace professional medical advice.
+                </p>
+            </div>
+
+        </section>
+
+
+        <!-- Footer -->
+        <footer>
+
+            <span>MedLens</span>
+
+            <span>
+                Medical information organization & understanding
+            </span>
+
+        </footer>
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>

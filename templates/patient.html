@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MedLens | Add Patient</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .form-page {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            border: 1px solid #e6eaee;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-section h3 {
+            color: #173b3a;
+            margin-bottom: 5px;
+            font-size: 18px;
+        }
+
+        .form-section > p {
+            color: #7b8794;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 7px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #d9e0e5;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.08);
+        }
+
+        .form-group textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .required {
+            color: #dc2626;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 22px;
+        }
+
+        .cancel-button {
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #475569;
+            padding: 11px 20px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .save-button {
+            border: none;
+            background: #0f766e;
+            color: white;
+            padding: 11px 22px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .save-button:hover {
+            background: #115e59;
+        }
+
+        .info-box {
+            background: #f0f9f8;
+            border: 1px solid #d6eeeb;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #526565;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .form-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="main-content" style="margin-left: 0;">
+
+        <div class="form-page">
+
+            <!-- Header -->
+            <header class="topbar">
+
+                <div>
+                    <h1>Add Patient Information</h1>
+                    <p>Create a structured patient profile.</p>
+                </div>
+
+                <button class="secondary-button"
+                        onclick="window.location.href='/'">
+                    ← Dashboard
+                </button>
+
+            </header>
+
+
+            <!-- Privacy Information -->
+            <div class="info-box">
+                🔒 <strong>Privacy First:</strong>
+                Enter only the information necessary for organizing
+                the medical record. Your information will be handled
+                within the application's protected storage.
+            </div>
+
+
+            <!-- Patient Form -->
+            <form id="patient-intake-form"
+      class="form-card"
+      method="POST"
+      action="/patient/save">
+
+                <!-- Basic Information -->
+                <section class="form-section">
+
+                    <h3>Basic Information</h3>
+
+                    <p>Enter the patient's basic identifying information.</p>
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label for="full_name">
+                                Full Name <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                id="full_name"
+                                name="full_name"
+                                placeholder="Enter full name"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="patient_id">
+                                Patient ID
+                            </label>
+
+                            <input
+                                type="text"
+                                id="patient_id"
+                                name="patient_id"
+                                placeholder="Optional"
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="dob">
+                                Date of Birth
+                            </label>
+
+                            <input
+                                type="date"
+                                id="dob"
+                                name="dob"
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="age">
+                                Age
+                            </label>
+
+                            <input
+                                type="number"
+                                id="age"
+                                name="age"
+                                min="0"
+                                max="150"
+                                placeholder="Enter age"
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="sex">
+                                Sex
+                            </label>
+
+                            <select id="sex" name="sex">
+                                <option value="">Select</option>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                                <option value="Intersex">Intersex</option>
+                                <option value="Prefer not to say">Prefer not to say</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="contact">
+                                Contact Information
+                            </label>
+
+                            <input
+                                type="text"
+                                id="contact"
+                                name="contact"
+                                placeholder="Optional"
+                            >
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Medical Information -->
+                <section class="form-section">
+
+                    <h3>Medical Information</h3>
+
+                    <p>Provide relevant information about the patient's health history.</p>
+
+                    <div class="form-grid">
+
+                        <div class="form-group full">
+                            <label for="symptoms">
+                                Symptoms
+                            </label>
+
+                            <textarea
+                                id="symptoms"
+                                name="symptoms"
+                                placeholder="Enter relevant symptoms"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="conditions">
+                                Existing Medical Conditions
+                            </label>
+
+                            <textarea
+                                id="conditions"
+                                name="conditions"
+                                placeholder="Enter existing medical conditions"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="allergies">
+                                Allergies
+                            </label>
+
+                            <textarea
+                                id="allergies"
+                                name="allergies"
+                                placeholder="Enter known allergies"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="medications">
+                                Current Medications
+                            </label>
+
+                            <textarea
+                                id="medications"
+                                name="medications"
+                                placeholder="Enter current medications"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="surgeries">
+                                Previous Surgeries
+                            </label>
+
+                            <textarea
+                                id="surgeries"
+                                name="surgeries"
+                                placeholder="Enter previous surgeries if relevant"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="family_history">
+                                Family Medical History
+                            </label>
+
+                            <textarea
+                                id="family_history"
+                                name="family_history"
+                                placeholder="Enter relevant family medical history"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="lifestyle">
+                                Lifestyle Information
+                            </label>
+
+                            <textarea
+                                id="lifestyle"
+                                name="lifestyle"
+                                placeholder="Enter relevant lifestyle information"
+                            ></textarea>
+                        </div>
+
+
+                        <div class="form-group full">
+                            <label for="other_info">
+                                Other Relevant Information
+                            </label>
+
+                            <textarea
+                                id="other_info"
+                                name="other_info"
+                                placeholder="Enter any other relevant information"
+                            ></textarea>
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+                <!-- Actions -->
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        class="cancel-button"
+                        onclick="window.location.href='/'">
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="save-button">
+                        Save Patient Information
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+</body>
+</html>

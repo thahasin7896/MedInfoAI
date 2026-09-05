@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Medical Results | MedLens</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 50px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .results-table th {
+            background: #f0f3f8;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .verified {
+            color: #198754;
+        }
+
+        .unverified {
+            color: #dc3545;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 25px;
+            text-decoration: none;
+            padding: 10px 18px;
+            background: #ffffff;
+            border-radius: 8px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/reports" class="back-button">
+        ← Back to Medical Reports
+    </a>
+
+    <h1>Structured Medical Results</h1>
+
+    <p class="subtitle">
+        Extracted medical information will appear here after report processing.
+    </p>
+
+    {% if results %}
+
+    <table class="results-table">
+
+        <thead>
+            <tr>
+                <th>Test Name</th>
+                <th>Value</th>
+                <th>Unit</th>
+                <th>Reference Range</th>
+                <th>Status</th>
+                <th>Observation</th>
+                <th>Source</th>
+                <th>Verification</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for result in results %}
+
+            <tr>
+
+                <td>{{ result["test_name"] }}</td>
+
+                <td>{{ result["value"] }}</td>
+
+                <td>{{ result["unit"] }}</td>
+
+                <td>{{ result["reference_range"] }}</td>
+
+                <td class="status">
+                    {{ result["result_status"] }}
+                </td>
+
+                <td>{{ result["observation"] }}</td>
+
+                <td>
+                    {{ result["provenance"] }}
+                </td>
+
+                <td>
+
+                    {% if result["verified"] %}
+    <span class="verified">✓ Verified</span>
+{% else %}
+    <span class="unverified">⚠ Unverified</span>
+
+    <form action="/results/verify/{{ result['id'] }}" method="POST" style="margin-top: 8px;">
+        <button type="submit">
+            Verify
+        </button>
+    </form>
+{% endif %}
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    {% else %}
+
+    <div class="empty-state">
+
+        <h2>No structured results yet</h2>
+
+        <p>
+            Upload a medical report to extract and organize
+            test names, values, units, reference ranges,
+            observations, and verification status.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

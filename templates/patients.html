@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MedLens | Patients</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .patients-page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .patients-card {
+            background: white;
+            border: 1px solid #e6eaee;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 25px;
+        }
+
+        .patients-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .patients-header h2 {
+            color: #173b3a;
+            font-size: 20px;
+        }
+
+        .patients-header p {
+            color: #7b8794;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .patient-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .patient-row {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 0.8fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+            padding: 17px;
+            border: 1px solid #e8edf0;
+            border-radius: 11px;
+        }
+
+        .patient-row:hover {
+            background: #f8fbfb;
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: #243b3a;
+        }
+
+        .patient-detail {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .patient-label {
+            display: block;
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+        }
+
+        .view-button {
+            border: 1px solid #0f766e;
+            background: white;
+            color: #0f766e;
+            padding: 8px 13px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .view-button:hover {
+            background: #0f766e;
+            color: white;
+        }
+
+        .empty-patients {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-patients-icon {
+            font-size: 45px;
+            margin-bottom: 15px;
+        }
+
+        .empty-patients h3 {
+            color: #334155;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-patients p {
+            color: #7b8794;
+            font-size: 13px;
+            max-width: 450px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 800px) {
+            .patient-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .patient-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="main-content" style="margin-left: 0;">
+
+    <div class="patients-page">
+
+        <!-- Header -->
+        <header class="topbar">
+
+            <div>
+                <h1>Patients</h1>
+                <p>View and manage your stored patient information.</p>
+            </div>
+
+            <div class="topbar-actions">
+
+                <button
+                    class="secondary-button"
+                    onclick="window.location.href='/'">
+                    ← Dashboard
+                </button>
+
+                <button
+                    class="primary-button"
+                    style="margin-top: 0;"
+                    onclick="window.location.href='/patient'">
+                    + Add Patient
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <!-- Patient List -->
+        <section class="patients-card">
+
+            <div class="patients-header">
+
+                <div>
+                    <h2>Patient Records</h2>
+                    <p>
+                        {{ patients|length }} patient record(s) stored.
+                    </p>
+                </div>
+
+            </div>
+
+
+            {% if patients %}
+
+                <div class="patient-list">
+
+                    {% for patient in patients %}
+
+                        <div class="patient-row">
+
+                            <div>
+                                <span class="patient-label">Name</span>
+                                <div class="patient-name">
+                                    {{ patient["full_name"] }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="patient-label">Patient ID</span>
+                                <div class="patient-detail">
+                                    {{ patient["patient_id"] or "Not provided" }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="patient-label">Age</span>
+                                <div class="patient-detail">
+                                    {{ patient["age"] or "Not provided" }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="patient-label">Sex</span>
+                                <div class="patient-detail">
+                                    {{ patient["sex"] or "Not provided" }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <button
+                                    class="view-button"
+                                    onclick="window.location.href='/patient/{{ patient.id }}'">
+                                    View
+                                </button>
+                            </div>
+
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-patients">
+
+                    <div class="empty-patients-icon">
+                        👤
+                    </div>
+
+                    <h3>No patients yet</h3>
+
+                    <p>
+                        Add patient information to start building
+                        your structured medical record.
+                    </p>
+
+                    <button
+                        class="primary-button"
+                        onclick="window.location.href='/patient'">
+                        + Add Patient
+                    </button>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </div>
+
+</main>
+
+</body>
+</html>

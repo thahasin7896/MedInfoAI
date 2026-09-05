@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Analytics | MedLens</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 25px;
+            padding: 10px 18px;
+            background: white;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .normal {
+            color: #198754;
+            font-weight: bold;
+        }
+
+        .abnormal {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .unknown {
+            color: #777;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/" class="back-button">← Back to Dashboard</a>
+
+    <h1>Analytics & Trends</h1>
+
+    <p>
+        Overview of available medical test results from uploaded reports.
+    </p>
+
+    {% if results %}
+
+    <div class="card">
+
+        <h2>Recorded Results</h2>
+
+        {% for result in results %}
+
+        <div class="result-row">
+
+            <div>
+                <strong>{{ result["test_name"] }}</strong>
+                <br>
+                <small>{{ result["created_at"] }}</small>
+            </div>
+
+            <div>
+                {{ result["value"] }}
+            </div>
+
+            <div>
+                {% if result["result_status"] == "NORMAL" %}
+                    <span class="normal">NORMAL</span>
+                {% elif result["result_status"] in ["LOW", "HIGH"] %}
+                    <span class="abnormal">
+                        {{ result["result_status"] }}
+                    </span>
+                {% else %}
+                    <span class="unknown">UNKNOWN</span>
+                {% endif %}
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="card empty">
+
+        <h2>No analytics available yet</h2>
+
+        <p>
+            Upload and process medical reports to generate
+            analytics from actual patient data.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Timeline | MedLens</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 25px;
+            padding: 10px 18px;
+            background: white;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .timeline {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .event {
+            padding: 20px;
+            border-left: 4px solid #4f46e5;
+            margin-bottom: 15px;
+            background: #fafbff;
+            border-radius: 8px;
+        }
+
+        .event h3 {
+            margin: 0 0 8px;
+        }
+
+        .event p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/" class="back-button">← Back to Dashboard</a>
+
+    <h1>Medical Record Timeline</h1>
+
+    <p>
+        A chronological history of patient information, reports,
+        and structured medical information.
+    </p>
+
+    {% if events %}
+
+    <div class="timeline">
+
+        {% for event in events %}
+
+        <div class="event">
+
+            <h3>{{ event["event"] }}</h3>
+
+            <p>
+                <strong>Details:</strong>
+                {{ event["details"] }}
+            </p>
+
+            <p>
+                <strong>Date & Time:</strong>
+                {{ event["event_time"] }}
+            </p>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% else %}
+
+    <div class="timeline empty">
+
+        <h2>No timeline events yet</h2>
+
+        <p>
+            Patient information and medical reports will appear here
+            as they are added.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

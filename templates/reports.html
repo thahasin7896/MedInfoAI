@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MedLens | Medical Reports</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .reports-page {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .upload-card {
+            background: white;
+            border: 1px solid #e6eaee;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 25px;
+        }
+
+        .upload-area {
+            border: 2px dashed #b9d9d6;
+            border-radius: 14px;
+            padding: 55px 25px;
+            text-align: center;
+            background: #f8fcfc;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-area:hover {
+            background: #f0f9f8;
+            border-color: #0f766e;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h2 {
+            color: #173b3a;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .upload-area p {
+            color: #7b8794;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .upload-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 11px 20px;
+            background: #0f766e;
+            color: white;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .upload-button:hover {
+            background: #115e59;
+        }
+
+        #report-file {
+            display: none;
+        }
+
+        .selected-file {
+            display: none;
+            margin-top: 20px;
+            padding: 14px;
+            border: 1px solid #dbe5e5;
+            border-radius: 10px;
+            background: white;
+            text-align: left;
+        }
+
+        .selected-file strong {
+            color: #334155;
+            font-size: 13px;
+        }
+
+        .selected-file span {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .process-button {
+            display: none;
+            margin: 20px auto 0;
+            border: none;
+            background: #0f766e;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .process-button:hover {
+            background: #115e59;
+        }
+
+        .supported-info {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .info-tag {
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 11px;
+        }
+
+        .provenance-box {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 12px;
+            background: #f0f9f8;
+            border: 1px solid #d6eeeb;
+        }
+
+        .provenance-box h3 {
+            color: #155e59;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .provenance-box p {
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .safety-box {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 10px;
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            color: #64748b;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="main-content" style="margin-left: 0;">
+
+    <div class="reports-page">
+
+        <!-- Header -->
+        <header class="topbar">
+
+            <div>
+                <h1>Medical Reports</h1>
+                <p>Upload and organize medical reports.</p>
+            </div>
+
+            <div class="topbar-actions">
+
+    <button
+        class="secondary-button"
+        onclick="window.location.href='/'">
+        ← Dashboard
+    </button>
+
+    <button
+        class="secondary-button"
+        onclick="window.location.href='/results'">
+        📊 Structured Results
+    </button>
+
+</div>
+
+        </header>
+
+
+        <!-- Upload Card -->
+        <section class="upload-card">
+
+            <div class="upload-area"
+                 onclick="document.getElementById('report-file').click()">
+
+                <div class="upload-icon">
+                    📄
+                </div>
+
+                <h2>Upload Medical Report</h2>
+
+                <p>
+                    Select a medical report from your computer.
+                    <br>
+                    The report can later be processed into a structured
+                    medical record.
+                </p>
+
+                <<form
+    action="/reports/upload"
+    method="POST"
+    enctype="multipart/form-data">
+
+    <label
+        for="report-file"
+        class="upload-button"
+        onclick="event.stopPropagation()">
+        Choose Report
+    </label>
+
+    <input
+        type="file"
+        id="report-file"
+        name="report"
+        accept=".pdf,.png,.jpg,.jpeg"
+        required>
+
+    <div id="selected-file" class="selected-file">
+
+        <strong>Selected report:</strong>
+
+        <br>
+
+        <span id="file-name"></span>
+
+    </div>
+
+    <button
+        type="submit"
+        id="process-button"
+        class="process-button"
+        onclick="event.stopPropagation()">
+        Upload Medical Report
+    </button>
+
+</form>
+                >
+
+                <!-- Selected file -->
+                <div id="selected-file" class="selected-file">
+
+                    <strong>Selected report:</strong>
+
+                    <br>
+
+                    <span id="file-name"></span>
+
+                </div>
+
+                <button
+                    type="button"
+                    id="process-button"
+                    class="process-button"
+                    onclick="event.stopPropagation()">
+                    Process Medical Report
+                </button>
+
+            </div>
+
+
+            <!-- Supported files -->
+            <div class="supported-info">
+
+                <span class="info-tag">
+                    PDF Reports
+                </span>
+
+                <span class="info-tag">
+                    JPG Images
+                </span>
+
+                <span class="info-tag">
+                    PNG Images
+                </span>
+
+                <span class="info-tag">
+                    Structured Extraction
+                </span>
+
+            </div>
+
+
+            <!-- Provenance -->
+            <div class="provenance-box">
+
+                <h3>🔎 Source & Provenance</h3>
+
+                <p>
+                    Information extracted from an uploaded report will
+                    be clearly identified as coming from the source
+                    document. AI-generated information will be
+                    distinguished from user-provided and
+                    report-extracted information.
+                </p>
+
+            </div>
+
+
+            <!-- Safety -->
+            <div class="safety-box">
+
+                ⚕ <strong>Responsible AI:</strong>
+                MedLens is designed to organize and explain medical
+                information. It does not provide diagnosis,
+                prescribe medication, recommend dosage changes,
+                or replace professional medical advice.
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script>
+    const fileInput = document.getElementById("report-file");
+    const selectedFile = document.getElementById("selected-file");
+    const fileName = document.getElementById("file-name");
+    const processButton = document.getElementById("process-button");
+
+    fileInput.addEventListener("change", function () {
+
+        if (fileInput.files.length > 0) {
+
+            const file = fileInput.files[0];
+
+            fileName.textContent =
+                file.name + " (" +
+                Math.round(file.size / 1024) +
+                " KB)";
+
+            selectedFile.style.display = "block";
+            processButton.style.display = "block";
+
+        } else {
+
+            selectedFile.style.display = "none";
+            processButton.style.display = "none";
+
+        }
+
+    });
+</script>
+<section class="reports-list">
+
+    <h2>Uploaded Medical Reports</h2>
+
+    {% if reports %}
+
+        {% for report in reports %}
+
+        <div class="report-card">
+
+            <div>
+                <strong>📄 {{ report["filename"] }}</strong>
+
+                <p>
+                    Status:
+                    <span>{{ report["processing_status"] }}</span>
+                </p>
+
+                <small>
+                    Uploaded: {{ report["uploaded_at"] }}
+                </small>
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h3>No medical reports yet</h3>
+
+            <p>
+                Upload a medical report to begin extracting
+                structured medical information.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+</body>
+</html>

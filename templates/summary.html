@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Summary | MedLens</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 30px;
+            background: #f5f7fb;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 25px;
+            text-decoration: none;
+            padding: 10px 18px;
+            background: white;
+            border-radius: 8px;
+            color: #333;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            margin-bottom: 25px;
+        }
+
+        .result {
+            padding: 18px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .result:last-child {
+            border-bottom: none;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .safe {
+            color: #198754;
+        }
+
+        .warning {
+            color: #dc3545;
+        }
+
+        .info {
+            color: #666;
+        }
+
+        .notice {
+            background: #fff8e1;
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 25px;
+            color: #5f4b00;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 40px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <a href="/" class="back-button">← Back to Dashboard</a>
+
+    <h1>AI-Powered Medical Information Summary</h1>
+
+    <p class="info">
+        A patient-friendly overview of information extracted from uploaded medical reports.
+    </p>
+
+    {% if results %}
+
+    <div class="summary-card">
+
+        <h2>Information Summary</h2>
+
+        {% for result in results %}
+
+        <div class="result">
+
+            <h3>{{ result["test_name"] }}</h3>
+
+            <p>
+                <strong>Recorded value:</strong>
+                {{ result["value"] }}
+                {{ result["unit"] }}
+            </p>
+
+            <p>
+                <strong>Reference range:</strong>
+                {{ result["reference_range"] }}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+
+                {% if result["result_status"] == "NORMAL" %}
+                    <span class="status safe">Normal</span>
+                {% elif result["result_status"] in ["LOW", "HIGH"] %}
+                    <span class="status warning">
+                        {{ result["result_status"] }}
+                    </span>
+                {% else %}
+                    <span class="status info">Unknown</span>
+                {% endif %}
+            </p>
+
+            <p>
+                <strong>Observation:</strong>
+                {{ result["observation"] }}
+            </p>
+
+            <p>
+                <strong>Source:</strong>
+                {{ result["provenance"] }}
+            </p>
+
+            {% if result["verified"] %}
+                <p class="safe">✓ Human verified</p>
+            {% else %}
+                <p class="warning">⚠ Awaiting human verification</p>
+            {% endif %}
+
+        </div>
+
+        {% endfor %}
+
+        <div class="notice">
+            <strong>Responsible AI Notice:</strong><br><br>
+            This summary is intended only to help organize and understand
+            medical information. It does not provide a diagnosis,
+            treatment recommendation, or medication advice.
+            Please consult a qualified healthcare professional for
+            medical interpretation and decisions.
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="summary-card empty">
+
+        <h2>No medical information available yet</h2>
+
+        <p>
+            Upload a medical report and process it to generate
+            an information summary.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
