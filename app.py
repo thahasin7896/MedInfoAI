@@ -1,288 +1,182 @@
+import re
 from pathlib import Path
 
-from flask import Flask, redirect, render_template, request, url_for
-from werkzeug.utils import secure_filename
-
-from database.db import get_connection, initialize_database
-from services.report_processor import extract_structured_results, process_report
+import pymupdf
 
 
-app = Flask(__name__)
+def process_report(file_path):
+    """
+    Extract text from an uploaded PDF medical report.
+    """
 
-BASE_DIR = Path(__file__).resolve().parent
-UPLOAD_FOLDER = BASE_DIR / "uploads"
-UPLOAD_FOLDER.mkdir(exist_ok=True)
+    file_path = Path(file_path)
 
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-ALLOWED_EXTENSIONS = {".pdf", ".jpg", ".jpeg", ".png"}
+    if not file_path.exists():
+        return {
+            "status": "error",
+            "message": "Report file not found."
+        }
 
-initialize_database()
+    if file_path.suffix.lower() != ".pdf":
+        return {
+            "status": "error",
+            "message": "Currently, PDF processing is supported."
+        }
+
+    try:
+        document = pymupdf.open(str(file_path))
+
+        pages = []
+
+        for page in document:
+            text = page.get_text()
+            pages.append(text)
+
+        document.close()
+
+        extracted_text = "\n".join(pages).strip()
+
+        return {
+            "status": "success",
+            "filename": file_path.name,
+            "source": "EXTRACTED FROM UPLOADED REPORT",
+            "text": extracted_text
+        }
+
+    except Exception as error:
+        return {
+            "status": "error",
+            "message": str(error)
+        }
 
 
-@app.route("/")
-def dashboard():
-    return render_template("index.html")
+def prepare_for_structuring(extracted_text):
+    """
+    Prepare extracted report text for structured medical information extraction.
+    """
+
+    if not extracted_text:
+        return {
+            "status": "empty",
+            "message": "No text could be extracted from the report."
+        }
+
+    return {
+        "status": "ready",
+        "text": extracted_text,
+        "provenance": "EXTRACTED FROM UPLOADED REPORT"
+    }
 
 
-@app.route("/patient")
-def patient():
-    return render_template("patient.html")
+def create_structured_result(
+    report_id,
+    test_name,
+    value=None,
+    unit=None,
+    reference_range=None,
+    result_status=None,
+    observation=None
+):
+    """
+    Create a structured medical result.
+
+    Reference ranges must come from the source report.
+    """
+
+    return {
+        "report_id": report_id,
+        "test_name": test_name,
+        "value": value,
+        "unit": unit,
+        "reference_range": reference_range,
+        "result_status": result_status,
+        "observation": observation,
+        "provenance": "EXTRACTED FROM UPLOADED REPORT",
+        "verified": 0
+    }
 
 
-@app.route("/patient/save", methods=["POST"])
-def save_patient():
-    connection = get_connection()
+def extract_structured_results(text, report_id):
+    """
+    Extract common lab-result patterns from report text.
 
-    connection.execute("""
-        INSERT INTO patients (
-            full_name, dob, age, sex, patient_id, contact,
-            symptoms, conditions, allergies, medications,
-            surgeries, family_history, lifestyle, other_info
+    Reference ranges are used only when present in the source text.
+    """
+
+    results = []
+
+    if not text:
+        return results
+
+    lines = text.splitlines()
+
+    for line in lines:
+        line = line.strip()
+
+        if not line:
+            continue
+
+        # Example:
+        # Hemoglobin 13.5 g/dL 12-16 g/dL
+        #
+        # Also supports:
+        # Hemoglobin 13.5 g/dL
+        # Glucose 95 mg/dL 70-100 mg/dL
+
+        pattern = (
+            r"^([A-Za-z][A-Za-z0-9 /().-]{2,40})\s+"
+            r"([0-9]+(?:\.[0-9]+)?)"
+            r"(?:\s+([A-Za-z/%µμ]+(?:/[A-Za-z]+)?))?"
+            r"(?:\s+([0-9]+(?:\.[0-9]+)?\s*[-–]\s*[0-9]+(?:\.[0-9]+)?))?"
+            r"(?:\s+([A-Za-z/%µμ]+(?:/[A-Za-z]+)?))?$"
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, (
-        request.form.get("full_name"),
-        request.form.get("dob"),
-        request.form.get("age"),
-        request.form.get("sex"),
-        request.form.get("patient_id"),
-        request.form.get("contact"),
-        request.form.get("symptoms"),
-        request.form.get("conditions"),
-        request.form.get("allergies"),
-        request.form.get("medications"),
-        request.form.get("surgeries"),
-        request.form.get("family_history"),
-        request.form.get("lifestyle"),
-        request.form.get("other_info"),
-    ))
 
-    connection.commit()
-    connection.close()
+        match = re.search(pattern, line)
 
-    return redirect(url_for("patients"))
+        if not match:
+            continue
 
+        test_name = match.group(1).strip()
+        value = match.group(2)
+        unit = match.group(3) or ""
+        reference_range = match.group(4) or ""
 
-@app.route("/patients")
-def patients():
-    connection = get_connection()
-    patient_list = connection.execute("""
-        SELECT *
-        FROM patients
-        ORDER BY created_at DESC
-    """).fetchall()
-    connection.close()
+        result_status = "UNKNOWN"
 
-    return render_template("patients.html", patients=patient_list)
-
-
-@app.route("/reports")
-def reports():
-    connection = get_connection()
-    report_list = connection.execute("""
-        SELECT *
-        FROM reports
-        ORDER BY uploaded_at DESC
-    """).fetchall()
-    connection.close()
-
-    return render_template("reports.html", reports=report_list)
-
-
-@app.route("/reports/upload", methods=["POST"])
-def upload_report():
-    file = request.files.get("file") or request.files.get("report")
-
-    if not file or not file.filename:
-        return "No report selected.", 400
-
-    extension = Path(file.filename).suffix.lower()
-
-    if extension not in ALLOWED_EXTENSIONS:
-        return "Unsupported file type.", 400
-
-    filename = secure_filename(file.filename)
-    file_path = UPLOAD_FOLDER / filename
-    file.save(file_path)
-
-    result = process_report(file_path)
-
-    connection = get_connection()
-    cursor = connection.execute("""
-        INSERT INTO reports (
-            filename,
-            extracted_text,
-            processing_status
-        )
-        VALUES (?, ?, ?)
-    """, (
-        filename,
-        result.get("text", ""),
-        result.get("status", "uploaded"),
-    ))
-
-    report_id = cursor.lastrowid
-    connection.commit()
-    connection.close()
-
-    structured_results = extract_structured_results(
-        result.get("text", ""),
-        report_id,
-    )
-
-    connection = get_connection()
-
-    for item in structured_results:
-        connection.execute("""
-            INSERT INTO medical_results (
-                report_id,
-                test_name,
-                value,
-                unit,
-                reference_range,
-                result_status,
-                observation,
-                provenance,
-                verified
+        if reference_range:
+            numbers = re.findall(
+                r"[0-9]+(?:\.[0-9]+)?",
+                reference_range
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            item.get("report_id", report_id),
-            item.get("test_name", ""),
-            item.get("value", ""),
-            item.get("unit", ""),
-            item.get("reference_range", ""),
-            item.get("result_status", ""),
-            item.get("observation", ""),
-            item.get("provenance", ""),
-            item.get("verified", False),
-        ))
 
-    connection.commit()
-    connection.close()
+            if len(numbers) >= 2:
+                low = float(numbers[0])
+                high = float(numbers[1])
+                numeric_value = float(value)
 
-    return redirect(url_for("results"))
+                if numeric_value < low:
+                    result_status = "LOW"
 
-@app.route("/results/verify/<int:result_id>", methods=["POST"])
-def verify_result(result_id):
-    connection = get_connection()
+                elif numeric_value > high:
+                    result_status = "HIGH"
 
-    connection.execute("""
-        UPDATE medical_results
-        SET verified = 1
-        WHERE id = ?
-    """, (result_id,))
+                else:
+                    result_status = "NORMAL"
 
-    connection.commit()
-    connection.close()
+        results.append(
+            create_structured_result(
+                report_id=report_id,
+                test_name=test_name,
+                value=value,
+                unit=unit,
+                reference_range=(
+                    reference_range
+                    if reference_range
+                    else "Reference range unavailable"
+                ),
+                result_status=result_status,
+                observation="Extracted from uploaded report."
+            )
+        )
 
-    return redirect(url_for("results"))
-@app.route("/timeline")
-def timeline():
-    connection = get_connection()
-
-    events = connection.execute("""
-        SELECT 'Medical Report Uploaded' AS event,
-               filename AS details,
-               uploaded_at AS event_time
-        FROM reports
-
-        UNION ALL
-
-        SELECT 'Medical Result Extracted' AS event,
-               test_name AS details,
-               created_at AS event_time
-        FROM medical_results
-
-        UNION ALL
-
-        SELECT 'Patient Information Added' AS event,
-               full_name AS details,
-               created_at AS event_time
-        FROM patients
-
-        ORDER BY event_time DESC
-    """).fetchall()
-
-    connection.close()
-
-    return render_template("timeline.html", events=events)
-@app.route("/conflicts")
-def conflicts():
-    connection = get_connection()
-
-    results = connection.execute("""
-        SELECT test_name, value, result_status,
-               reference_range, created_at
-        FROM medical_results
-        ORDER BY test_name, created_at ASC
-    """).fetchall()
-
-    connection.close()
-
-    conflicts_found = []
-
-    previous = {}
-
-    for result in results:
-        test_name = result["test_name"]
-
-        if test_name in previous:
-            old_value = previous[test_name]["value"]
-
-            if old_value != result["value"]:
-                conflicts_found.append({
-                    "test_name": test_name,
-                    "previous_value": old_value,
-                    "current_value": result["value"],
-                    "message": "Different values were recorded in different reports. Please review the source reports."
-                })
-
-        previous[test_name] = result
-
-    return render_template(
-        "conflicts.html",
-        conflicts=conflicts_found
-    )
-@app.route("/analytics")
-def analytics():
-    connection = get_connection()
-
-    results = connection.execute("""
-        SELECT test_name, value, result_status, created_at
-        FROM medical_results
-        ORDER BY created_at ASC
-    """).fetchall()
-
-    connection.close()
-
-    return render_template("analytics.html", results=results)
-@app.route("/summary")
-def summary():
-    connection = get_connection()
-
-    results = connection.execute("""
-        SELECT test_name, value, unit, reference_range,
-               result_status, observation, provenance, verified
-        FROM medical_results
-        ORDER BY created_at DESC
-    """).fetchall()
-
-    connection.close()
-
-    return render_template("summary.html", results=results)
-@app.route("/results")
-def results():
-    connection = get_connection()
-    result_list = connection.execute("""
-        SELECT *
-        FROM medical_results
-        ORDER BY created_at DESC
-    """).fetchall()
-    connection.close()
-
-    return render_template("results.html", results=result_list)
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
+    return results
